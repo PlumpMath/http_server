@@ -65,8 +65,8 @@
                  #"\n\n"
                  (str "\nLocation: http://" host "/\n\n"))))
 
-(defn show-index []
-  (let [PUB_DIR "public"
+(defn show-index [directory]
+  (let [PUB_DIR directory
         files (rest (file-seq (io/file PUB_DIR)))
         links (map #(str "<li><a href=\"" (str "/" (.getName %))
                          "\">" (.getName %) "</a>\n") files)]
@@ -94,14 +94,16 @@
                    (str "<h1>Authentication required</h1>\n"
                         "<p>Authentication required\n"))))
 
-(defn show-file [uri]
-  (io/file (str "public" uri)))
+(defn show-file [uri directory]
+  (let [PUB_DIR directory]
+    (io/file (str PUB_DIR uri))))
 
 (defn show-logs []
   (io/file "http_server.log"))
 
-(defn generate-form [body]
-  (let [file (io/file "public/form")]
+(defn generate-form [body directory]
+  (let [PUB_DIR directory
+        file (io/file (str PUB_DIR "/form"))]
     (spit file body)))
 
 (defn decode-parameters [query]

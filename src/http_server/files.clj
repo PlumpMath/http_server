@@ -24,8 +24,9 @@
   (let [size (- upper lower)]
     (take size (drop lower file-bytes))))
 
-(defn file-range [uri headers]
-  (let [file (io/file (str "public" uri))
+(defn file-range [uri headers directory]
+  (let [PUB_DIR directory
+        file (io/file (str PUB_DIR uri))
         file-bytes (file-to-byte-array file)
         size (count file-bytes)
         range (-> headers first (str/split #"bytes=") second)
@@ -40,6 +41,7 @@
 (defn base64-decode [s]
   (->> s base64-to-bytes (map char) (apply str)))
 
-(defn generate-file [uri body]
-  (let [file (io/file (str "public" uri))]
+(defn generate-file [uri body directory]
+  (let [PUB_DIR directory
+        file (io/file (str PUB_DIR uri))]
     (spit file body)))

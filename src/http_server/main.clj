@@ -8,5 +8,6 @@
         (cli/cli args
                  ["-p" "--port" "Listen on this port" :default "5000"]
                  ["-d" "--directory" :default "public/"])
-        port (Integer. (get options :port))]
-    (server/server port)))
+        port (Integer. (get options :port))
+        directory (get options :directory)]
+    (server/server port directory)))
