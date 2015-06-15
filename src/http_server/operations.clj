@@ -1,7 +1,21 @@
 (ns http-server.operations
-  (:gen-class)
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
+
+;; What do you do?
+;; Building a response
+;; What would be a potential use case for making a change to this file?
+;; Who would request such a change?
+;; Support more file types?
+;; Support a new specification of HTTP?
+;; Change the representation of the form (file vs atom vs something else?)
+
+;; WHO?
+;; The communicator wants to have a certain layout to the output?
+;; That is, wants to change the FORMAT of the output
+;; Could also be about changing CONTENT of the output?
+;;
+
 
 (defn status [code]
   (let [output (case code
@@ -84,19 +98,19 @@
   (io/file (str "public" uri)))
 
 (defn show-logs []
-  (io/file (str "http_server.log")))
+  (io/file "http_server.log"))
 
 (defn generate-form [body]
   (let [file (io/file "public/form")]
     (spit file body)))
 
-(defn emphasize-names [coll]
-  (let [variables (->> coll (map #(str/split % #"\=")) (map first))]
-    (->> coll (map #(str/replace %2 (str %1 "=") (str %1 " = ")) variables))))
+;; (defn emphasize-names [coll]
+;;   (let [variables (->> coll (map #(str/split % #"\=")) (map first))]
+;;     (->> coll (map #(str/replace %2 (str %1 "=") (str %1 " = ")) variables))))
 
 (defn decode-parameters [query]
   (->> (str/split query #"\&")
        (map #(java.net.URLDecoder/decode %))
-       emphasize-names
+       (map #(str/replace-first % "=" " = "))
        (map #(str % "\n"))
        (apply str)))

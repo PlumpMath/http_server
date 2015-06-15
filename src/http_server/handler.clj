@@ -1,13 +1,12 @@
 (ns http-server.handler
-  (:gen-class)
   (:require [clojure.string :as str]
             [http-server.files :as files]
             [http-server.operations :as op]))
 
 (defn empty-response []
-  {:status (str),
+  {:status "",
    :header (op/header :empty),
-   :body (str)})
+   :body ""})
 
 (defn range-in-header? [headers]
   (when headers (re-find #"Range:" (first headers))))

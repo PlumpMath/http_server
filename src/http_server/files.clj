@@ -1,5 +1,4 @@
 (ns http-server.files
-  (:gen-class)
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
