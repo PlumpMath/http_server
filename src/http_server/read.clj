@@ -13,13 +13,13 @@
     (when (< c 0)
       (throw (Exception. (str "Error reading line: "
                               "EOF reached before CR/LF sequence"))))
-    (if (cr? c) ;; WHAT HAPPENS IF I GET AN LF FIRST???? 
-      (let [next (.read rdr)]
-        (if (lf? next)
-          (apply str line)
-          (throw (Exception. "Error reading line: Missing LF"))))
-      (recur (conj line (char c))
-             (.read rdr)))))
+    (cond (lf? c) (apply str line)
+          (cr? c) (let [next (.read rdr)]
+                    (if (lf? next)
+                      (apply str line)
+                      (throw (Exception. "Error reading line: Missing LF"))))
+          :else (recur (conj line (char c))
+                       (.read rdr)))))
 
 (defn read-msgs [rdr res]
   (let [msg (read-line-crlf rdr)]

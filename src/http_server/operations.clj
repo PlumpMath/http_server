@@ -104,10 +104,6 @@
   (let [file (io/file "public/form")]
     (spit file body)))
 
-;; (defn emphasize-names [coll]
-;;   (let [variables (->> coll (map #(str/split % #"\=")) (map first))]
-;;     (->> coll (map #(str/replace %2 (str %1 "=") (str %1 " = ")) variables))))
-
 (defn decode-parameters [query]
   (->> (str/split query #"\&")
        (map #(java.net.URLDecoder/decode %))
