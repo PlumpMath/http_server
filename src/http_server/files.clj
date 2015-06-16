@@ -8,17 +8,14 @@
       (.readFully in result))
     result))
 
-(defn get-upper [range size]
+(defn get-range [range size]
   (let [[left right] (str/split range #"-")]
-    (if (and (seq left) (seq right)) ; e.g. "0-4"
-      (inc (read-string right)) ; e.g. return 4+1
-      (inc size)))) ; otherwise upper is size of file+1, e.g. "-6" or "4-"
-
-(defn get-lower [range size]
-  (let [[left right] (str/split range #"-")]
-    (if (and (not (seq left)) (seq right)) ; e.g. "-6"
-      (- size (read-string right)) ; e.g. return 8 if file size is 14
-      (read-string left)))) ; e.g. return 2 if range is "2-4" or "2-"
+    (cond (and (seq left) (seq right)) ;; e.g. "0-4"
+          [(read-string left) (inc (read-string right))]
+          (and (seq left) (not (seq right))) ;; e.g. "4-"
+          [(read-string left) (inc size)]
+          :else
+          [(- size (read-string right)) (inc size)])))
 
 (defn bytes-range [file-bytes lower upper]
   (let [size (- upper lower)]
@@ -30,8 +27,7 @@
         file-bytes (file-to-byte-array file)
         size (count file-bytes)
         range (-> headers first (str/split #"bytes=") second)
-        upper (get-upper range size)
-        lower (get-lower range size)
+        [lower upper] (get-range range size)
         bytesrange (bytes-range file-bytes lower upper)]
     (->> bytesrange (map char) (apply str))))
 
