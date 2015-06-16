@@ -1,5 +1,6 @@
 (ns http-server.files
   (:require [clojure.java.io :as io]
+            [clojure.edn :as edn]
             [clojure.string :as str]))
 
 (defn file-to-byte-array [file]
@@ -11,11 +12,11 @@
 (defn get-range [range size]
   (let [[left right] (str/split range #"-")]
     (cond (and (seq left) (seq right)) ;; e.g. "0-4"
-          [(read-string left) (inc (read-string right))]
+          [(edn/read-string left) (inc (edn/read-string right))]
           (and (seq left) (not (seq right))) ;; e.g. "4-"
-          [(read-string left) (inc size)]
+          [(edn/read-string left) (inc size)]
           :else
-          [(- size (read-string right)) (inc size)])))
+          [(- size (edn/read-string right)) (inc size)])))
 
 (defn bytes-range [file-bytes lower upper]
   (let [size (- upper lower)]
