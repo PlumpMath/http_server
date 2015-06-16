@@ -1,1 +1,11 @@
-"My"="Data"
+<HTML>
+<head></head>
+<body>
+<form action="/form" method="post">
+<input type="text" name="stuff" />
+<input type="submit" value="Submit" />
+</body>
+</HTML>
+stuff=yeu
+stuff=asdfasdf
+stuff=adfasdfasdf

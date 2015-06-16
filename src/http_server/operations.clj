@@ -101,10 +101,22 @@
 (defn show-logs []
   (io/file "http_server.log"))
 
+(defn empty-form [directory]
+  (let [PUB_DIR directory
+        file (io/file (str PUB_DIR "/form"))]
+    (spit file (str "<HTML>\n"
+                    "<head></head>\n"
+                    "<body>\n"
+                    "<form action=\"/form\" method=\"post\">\n"
+                    "<input type=\"text\" name=\"stuff\" />\n"
+                    "<input type=\"submit\" value=\"Submit\" />\n"
+                    "</body>\n"
+                    "</HTML>\n"))))
+
 (defn generate-form [body directory]
   (let [PUB_DIR directory
         file (io/file (str PUB_DIR "/form"))]
-    (spit file body)))
+    (spit file (str body "\n") :append true)))
 
 (defn decode-parameters [query]
   (->> (str/split query #"\&")

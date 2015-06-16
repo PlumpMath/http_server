@@ -1,7 +1,6 @@
 (ns http-server.server
   (:require [clojure.java.io :as io]
             [http-server.adaptor :as adaptor]
-            [http-server.handler :as handler]
             [http-server.read :as read]
             [http-server.log :as log])
   (:refer-clojure :exclude [send])
@@ -13,7 +12,7 @@
   (io/copy (hmsg :body) output)
   (.flush output))
 
-(defn server [port directory]
+(defn server [port handler directory]
   (with-open [server-socket (ServerSocket. port 150)]
     (loop [running true
            n 0]
@@ -25,7 +24,7 @@
                   [msg1 & headers] (read/read-msgs rdr [])
                   body (read/read-body rdr)
                   amsg (adaptor/adaptor msg1 headers body)
-                  hmsg (handler/handler amsg directory)
+                  hmsg (handler amsg directory)
                   output (io/output-stream socket)]
               (send hmsg output)
               (log/log msg1))

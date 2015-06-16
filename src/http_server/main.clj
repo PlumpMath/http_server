@@ -1,6 +1,7 @@
 (ns http-server.main
   (:gen-class)
   (:require [clojure.tools.cli :as cli]
+            [http-server.handler :as handler]
             [http-server.server :as server]))
 
 (defn -main [& args]
@@ -10,4 +11,4 @@
                  ["-d" "--directory" :default "public/"])
         port (Integer. (get options :port))
         directory (get options :directory)]
-    (server/server port directory)))
+    (server/server port handler/handler directory)))
