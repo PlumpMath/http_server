@@ -1,6 +1,5 @@
 (ns http-server.read
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]))
+  (:require [clojure.string :as str]))
 
 (def cr  0x0d)
 (def lf  0x0a)

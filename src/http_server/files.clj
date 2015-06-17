@@ -42,3 +42,28 @@
   (let [PUB_DIR directory
         file (io/file (str PUB_DIR uri))]
     (spit file body)))
+
+(defn generate-form [body directory]
+  (let [PUB_DIR directory
+        file (io/file (str PUB_DIR "/form"))]
+    (spit file (str body "\n") :append true)))
+
+(defn empty-form [directory]
+  (let [PUB_DIR directory
+        file (io/file (str PUB_DIR "/form"))]
+    (spit file (str "<HTML>\n"
+                    "<head></head>\n"
+                    "<body>\n"
+                    "<form action=\"/form\" method=\"post\">\n"
+                    "<input type=\"text\" name=\"stuff\" />\n"
+                    "<input type=\"submit\" value=\"Submit\" />\n"
+                    "</body>\n"
+                    "</HTML>\n"))))
+
+(defn show-file [uri directory]
+  (let [PUB_DIR directory]
+    (io/file (str PUB_DIR uri))))
+
+(defn show-logs []
+  (io/file "http_server.log"))
+

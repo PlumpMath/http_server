@@ -1,6 +1,5 @@
 (ns http-server.adaptor
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]))
+  (:require [clojure.string :as str]))
 
 (defn get-filetype [uri]
   (when (re-find #"\." uri)
