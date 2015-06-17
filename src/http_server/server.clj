@@ -6,29 +6,32 @@
   (:refer-clojure :exclude [send])
   (:import [java.net ServerSocket]))
 
-(defn send [hmsg output]
-  (io/copy (hmsg :status) output)
-  (io/copy (hmsg :header) output)
-  (io/copy (hmsg :body) output)
-  (.flush output))
+(defn connect [port] (new ServerSocket port 150))
+
+(defn send [socket handler directory]
+  (let [input (io/input-stream socket)
+        rdr (io/reader input)
+        [msg1 & headers] (read/read-msgs rdr [])
+        body (read/read-body rdr)
+        amsg (adaptor/adaptor msg1 headers body)
+        hmsg (handler amsg directory)
+        output (io/output-stream socket)]
+    (io/copy (hmsg :status) output)
+    (io/copy (hmsg :header) output)
+    (io/copy (hmsg :body) output)
+    (.flush output)
+    (log/log msg1)))
 
 (defn server [port handler directory]
-  (with-open [server-socket (ServerSocket. port 150)]
-    (loop [running true
-           n 0]
-      (let [socket (.accept server-socket)]
-        (future
-          (try
-            (let [input (io/input-stream socket)
-                  rdr (io/reader input)
-                  [msg1 & headers] (read/read-msgs rdr [])
-                  body (read/read-body rdr)
-                  amsg (adaptor/adaptor msg1 headers body)
-                  hmsg (handler amsg directory)
-                  output (io/output-stream socket)]
-              (send hmsg output)
-              (log/log msg1))
-            (catch Throwable t (println "Error!")) ;; Better error reporting here and below
-            (finally (try (.close socket)
-                          (catch Throwable t (println "Error!" t)))))))
-      (recur running (inc n)))))
+  (let [running (atom true)]
+    (future 
+      (with-open [server-socket (connect port)]
+        (while @running
+          (with-open [socket (.accept server-socket)]
+            (try
+              (send socket handler directory)
+              (catch Throwable t (println "Error!"))
+              ;; Better error reporting above and below
+              (finally (try (.close socket)
+                            (catch Throwable t (println "Error!" t)))))))))
+    running))
