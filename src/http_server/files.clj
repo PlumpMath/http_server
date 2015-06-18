@@ -43,6 +43,37 @@
         file (io/file (str PUB_DIR uri))]
     (spit file body)))
 
+(defn patched-file? [uri]
+  (let [file (io/file "/tmp/patches.edn")
+        patched-data (if (.exists file)
+                       (-> file
+                           slurp
+                           edn/read-string))  
+        name (subs uri 1)]
+    (get-in patched-data [(keyword name) :id])))
+  
+(defn add-patch [uri headers body]
+  (let [file (io/file "/tmp/patches.edn")
+        patched-data (if (.exists file)
+                       (-> file
+                           slurp
+                           edn/read-string))
+        name (subs uri 1)
+        patch-id (-> headers first (str/split #"If-Match: ") second)
+        patched-data (-> patched-data
+                         (assoc-in [(keyword name) :id] patch-id)
+                         (assoc-in [(keyword name) :body] body))]
+    (spit file (.toString patched-data))))
+
+(defn show-patched-file [uri]
+  (let [file (io/file "/tmp/patches.edn")
+        name (subs uri 1)
+        patched-data (if (.exists file)
+                       (-> file
+                           slurp
+                           edn/read-string))]
+    (get-in patched-data [(keyword name) :body])))
+
 (defn generate-form [body directory]
   (let [PUB_DIR directory
         file (io/file (str PUB_DIR "/form"))]

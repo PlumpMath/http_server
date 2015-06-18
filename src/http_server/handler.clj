@@ -13,6 +13,9 @@
 (defn range-in-header? [headers]
   (when headers (re-find #"Range:" (first headers))))
 
+(defn patch-in-header? [headers]
+  (when headers (re-find #"If-Match:" (first headers))))
+
 (defn auth-in-header? [headers]
   (when headers (re-find #"Authorization:" (first headers))))
 
@@ -69,6 +72,11 @@
             (assoc :status (http/status 206)
                    :header (http/header :text) ;; Only handles range for text
                    :body (files/file-range uri headers directory)))
+        (files/patched-file? uri)
+        (-> (empty-response)
+            (assoc :status (http/status 200)
+                   :header (http/header :text)
+                   :body (files/show-patched-file uri)))
         (some #(= extension %) ["jpeg" "gif" "png"])
         (-> (empty-response)
             (assoc :status (http/status 200)
@@ -123,8 +131,8 @@
         (-> (empty-response)
             (assoc :status (http/status 405)))))
 
-(defn patch-handler [{:keys [uri body] :as request} directory]
-  (files/generate-file uri body directory)
+(defn patch-handler [{:keys [uri headers body] :as request} directory]
+  (files/add-patch uri headers body)
   (-> (empty-response)
       (assoc :status (http/status 204))))
 
