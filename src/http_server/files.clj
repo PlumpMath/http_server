@@ -30,7 +30,7 @@
         range (-> headers first (str/split #"bytes=") second)
         [lower upper] (get-range range size)
         bytesrange (bytes-range file-bytes lower upper)]
-    (->> bytesrange (map char) (apply str))))
+    (byte-array bytesrange)))
 
 (defn base64-to-bytes [b64]
   (into [] (.decode (java.util.Base64/getDecoder) b64)))

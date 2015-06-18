@@ -11,7 +11,7 @@
    :body ""})
 
 (defn range-in-header? [headers]
-  (when headers (re-find #"Range:" (first headers))))
+  (some #(re-find #"Range:" %) headers))
 
 (defn patch-in-header? [headers]
   (when headers (re-find #"If-Match:" (first headers))))
@@ -68,9 +68,8 @@
                    :header (http/add-redirect-to-header (http/header :empty)
                                                       headers)))
         (range-in-header? headers)
-        (-> (empty-response)
+        (-> (get-handler (http/remove-range request) directory)
             (assoc :status (http/status 206)
-                   :header (http/header :text) ;; Only handles range for text
                    :body (files/file-range uri headers directory)))
         (files/patched-file? uri)
         (-> (empty-response)

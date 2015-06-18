@@ -47,3 +47,6 @@
        (map #(str/replace-first % "=" " = "))
        (map #(str % "\n"))
        (apply str)))
+
+(defn remove-range [{:keys [headers] :as request}]
+  (assoc-in request [:headers] (remove #(re-find #"Range:" %) headers)))

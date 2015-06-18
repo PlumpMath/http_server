@@ -13,4 +13,3 @@
         directory (get options :directory)
         start-server (server/server port handler/handler directory)]
     (println "Server started")))
-
