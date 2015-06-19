@@ -23,23 +23,6 @@
     (.flush output)
     (log/log msg1)))
 
-;; (defn server [port handler directory]
-;;   (let [running (atom true)]
-;;     (future
-;;       (with-open [server-socket (ServerSocket. port 150)]
-;;         (while @running
-;;           (let [socket (.accept server-socket)]
-;;             (future
-;;               (try
-;;                 (send socket handler directory)
-;;                 (catch Throwable t
-;;                   (println (str "Error: " (.getStackTrace t))))
-;;                 (finally
-;;                   (try (.close socket)
-;;                        (catch Throwable t
-;;                          (println (str "Error: " (.getStackTrace t))))))))))))
-;;     running))
-
 (defn server [port handler directory]
   (let [running (atom true)]
     (future
@@ -51,16 +34,8 @@
                 (send socket handler directory)
                 (catch Throwable t
                   (errorlog/error t "Error: "))
-                  ;;(println (str (class e))))
-                  ;;(clojure.stacktrace/print-stack-trace e))
-;;                  (clojure.stacktrace/print-throwable t))
                 (finally
                   (try (.close socket)
                        (catch Throwable t
                          (errorlog/error t "Error: "))))))))))
-;;                         (println (str (class e))))))))))))
-                         ;;(clojure.stacktrace/print-stack-trace e))))))))))
-;;                         (clojure.stacktrace/print-throwable t))))))))))
     running))
-
-;; (def msg (with-out-str (s/print-stack-trace t)))

@@ -74,14 +74,12 @@
                            edn/read-string))]
     (get-in patched-data [(keyword name) :body])))
 
-(defn generate-form [body directory]
-  (let [PUB_DIR directory
-        file (io/file (str PUB_DIR "/form"))]
+(defn generate-form [body]
+  (let [file (io/file "/tmp/form")]
     (spit file (str body "\n") :append true)))
 
 (defn empty-form [directory]
-  (let [PUB_DIR directory
-        file (io/file (str PUB_DIR "/form"))]
+  (let [file (io/file "/tmp/form")]
     (spit file (str "<HTML>\n"
                     "<head></head>\n"
                     "<body>\n"
@@ -95,6 +93,9 @@
   (let [PUB_DIR directory]
     (io/file (str PUB_DIR uri))))
 
+(defn show-form []
+  (io/file "/tmp/form"))
+
 (defn show-logs []
-  (io/file "http_server.log"))
+  (io/file "/tmp/http_server.log"))
 

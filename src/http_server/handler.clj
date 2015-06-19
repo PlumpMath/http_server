@@ -46,7 +46,7 @@
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/header :html)
-                   :body (files/show-file uri directory)))
+                   :body (files/show-form)))
         (= uri "/logs")
         (if (correct-authentication? headers)
           (-> (empty-response)
@@ -109,7 +109,7 @@
                    :header (-> (http/header :empty)
                                http/add-options-to-header)))
         (= uri "/form")
-        (do (files/generate-form body directory)
+        (do (files/generate-form body)
             (-> (empty-response)
                 (assoc :status (http/status 200))))
         :else
@@ -123,7 +123,7 @@
                    :header (-> (http/header :html)
                                http/add-options-to-header)))
         (= uri "/form")
-        (do (files/generate-form body directory)
+        (do (files/generate-form body)
             (-> (empty-response)
                 (assoc :status (http/status 200))))
         :else

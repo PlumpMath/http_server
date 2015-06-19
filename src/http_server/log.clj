@@ -3,4 +3,4 @@
   ;;           [clojure.string :as str]))
 
 (defn log [request]
-  (spit "http_server.log" (str request "\n\n") :append true))
+  (spit "/tmp/http_server.log" (str request "\n\n") :append true))
