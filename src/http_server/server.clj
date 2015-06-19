@@ -1,5 +1,6 @@
 (ns http-server.server
   (:require [clojure.java.io :as io]
+            [clojure.tools.logging :as errorlog]
             [http-server.adaptor :as adaptor]
             [http-server.read :as read]
             [http-server.log :as log])
@@ -22,6 +23,23 @@
     (.flush output)
     (log/log msg1)))
 
+;; (defn server [port handler directory]
+;;   (let [running (atom true)]
+;;     (future
+;;       (with-open [server-socket (ServerSocket. port 150)]
+;;         (while @running
+;;           (let [socket (.accept server-socket)]
+;;             (future
+;;               (try
+;;                 (send socket handler directory)
+;;                 (catch Throwable t
+;;                   (println (str "Error: " (.getStackTrace t))))
+;;                 (finally
+;;                   (try (.close socket)
+;;                        (catch Throwable t
+;;                          (println (str "Error: " (.getStackTrace t))))))))))))
+;;     running))
+
 (defn server [port handler directory]
   (let [running (atom true)]
     (future
@@ -31,8 +49,18 @@
             (future
               (try
                 (send socket handler directory)
-                (catch Throwable t (println "Error!"))
-                ;; Better error reporting here and below
-                (finally (try (.close socket)
-                              (catch Throwable t (println "Error!" t))))))))))
+                (catch Throwable t
+                  (errorlog/error t "Error: "))
+                  ;;(println (str (class e))))
+                  ;;(clojure.stacktrace/print-stack-trace e))
+;;                  (clojure.stacktrace/print-throwable t))
+                (finally
+                  (try (.close socket)
+                       (catch Throwable t
+                         (errorlog/error t "Error: "))))))))))
+;;                         (println (str (class e))))))))))))
+                         ;;(clojure.stacktrace/print-stack-trace e))))))))))
+;;                         (clojure.stacktrace/print-throwable t))))))))))
     running))
+
+;; (def msg (with-out-str (s/print-stack-trace t)))
