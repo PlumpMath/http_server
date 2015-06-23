@@ -137,7 +137,7 @@
 
 (defn delete-handler [{:keys [uri] :as request}]
   (cond (= uri "/form")
-        (do (files/empty-form)
+        (do (files/generate-empty-form)
             (-> (empty-response)
                 (assoc :status (http/status 200))))
         :else (empty-response)))

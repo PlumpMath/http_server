@@ -13,14 +13,14 @@
 (defn get-range [range size]
   (let [[left right] (str/split range #"-")]
     (cond (and (seq left) (seq right)) ;; e.g. "0-4"
-          [(edn/read-string left) (inc (edn/read-string right))]
+          [(edn/read-string left) (edn/read-string right)]
           (and (seq left) (not (seq right))) ;; e.g. "4-"
-          [(edn/read-string left) (inc size)]
+          [(edn/read-string left) (dec size)]
           :else
-          [(- size (edn/read-string right)) (inc size)])))
+          [(- size (edn/read-string right)) (dec size)])))
 
 (defn bytes-range [file-bytes lower upper]
-  (let [size (- upper lower)]
+  (let [size (inc (- upper lower))]
     (take size (drop lower file-bytes))))
 
 (defn file-range [uri headers]
@@ -42,19 +42,14 @@
 (defn base64-decode [s]
   (->> s base64-to-bytes (map char) (apply str)))
 
-(defn generate-file [uri body]
-  (let [PUB_DIR (System/getProperty "PUB_DIR")
-        file (io/file (str PUB_DIR uri))]
-    (spit file body)))
-
 (defn patched-file? [uri]
   (let [file (io/file "/tmp/patches.edn")
         patched-data (if (.exists file)
                        (-> file
                            slurp
                            edn/read-string))  
-        name (subs uri 1)]
-    (get-in patched-data [(keyword name) :id])))
+        name-key (keyword (subs uri 1))]
+    (get-in patched-data [name-key :id])))
   
 (defn add-patch [uri headers body]
   (let [file (io/file "/tmp/patches.edn")
@@ -62,11 +57,11 @@
                        (-> file
                            slurp
                            edn/read-string))
-        name (subs uri 1)
+        name-key (keyword (subs uri 1))
         patch-id (-> headers first (str/split #"If-Match: ") second)
         patched-data (-> patched-data
-                         (assoc-in [(keyword name) :id] patch-id)
-                         (assoc-in [(keyword name) :body] body))]
+                         (assoc-in [name-key :id] patch-id)
+                         (assoc-in [name-key :body] body))]
     (spit file (.toString patched-data))))
 
 (defn show-patched-file [uri]
@@ -82,7 +77,7 @@
   (let [file (io/file "/tmp/form")]
     (spit file (str body "\n") :append true)))
 
-(defn empty-form []
+(defn generate-empty-form []
   (let [file (io/file "/tmp/form")]
     (spit file (str "<HTML>\n"
                     "<head></head>\n"
@@ -91,7 +86,7 @@
                     "<input type=\"text\" name=\"stuff\" />\n"
                     "<input type=\"submit\" value=\"Submit\" />\n"
                     "</body>\n"
-                    "</HTML>\n"))))
+                    "</HTML>\n\n"))))
 
 (defn show-file [uri]
   (let [PUB_DIR (System/getProperty "PUB_DIR")]
