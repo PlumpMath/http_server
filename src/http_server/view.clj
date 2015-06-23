@@ -10,8 +10,8 @@
        "</body>\n"
        "</html>\n"))
 
-(defn show-index [directory]
-  (let [PUB_DIR directory
+(defn show-index []
+  (let [PUB_DIR (System/getProperty "PUB_DIR")
         files (rest (file-seq (io/file PUB_DIR)))
         links (map #(str "<li><a href=\"" (str "/" (.getName %))
                          "\">" (.getName %) "</a>\n") files)]

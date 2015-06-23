@@ -10,6 +10,7 @@
                  ["-p" "--port" "Listen on this port" :default "5000"]
                  ["-d" "--directory" :default "public/"])
         port (Integer. (get options :port))
-        directory (get options :directory)
-        start-server (server/server port handler/handler directory)]
+        directory (get options :directory)]
+    (System/setProperty "PUB_DIR" directory)
+    (server/server port handler/handler)
     (println "Server started")))

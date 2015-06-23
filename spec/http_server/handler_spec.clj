@@ -3,6 +3,8 @@
             [http-server.handler :refer :all])
   (:refer-clojure :exclude [send]))
 
+(System/setProperty "PUB_DIR" "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+
 (describe "Query functions"
 
   (it "range-in-header?"
@@ -32,10 +34,9 @@
     (should-not (correct-authentication? '("Authorization: Basic xxxxx" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate"))))
 
   (it "file-in-directory?"
-    (should (file-in-directory? "/file1" "/Users/robert/clojure-1.6.0/cob_spec-master/public"))
-
-    (should-not (file-in-directory? "/file4" "/Users/robert/clojure-1.6.0/cob_spec-master/public"))))
-
+    (should (file-in-directory? "/file1"))
+  
+    (should-not (file-in-directory? "/file4")))) 
 
 (describe "Get handler"
 
@@ -43,58 +44,50 @@
     (should= "HTTP/1.1 200 OK\n"
       (-> (handler {:method :get,
                     :uri "/logs",
-                    :headers '("Authorization: Basic YWRtaW46aHVudGVyMg==" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}
-                   "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+                    :headers '("Authorization: Basic YWRtaW46aHVudGVyMg==" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")})
           (get :status))))
 
   (it "should only show logs if correct password"
     (should= "HTTP/1.1 401 Unauthorized\n"
       (-> (handler {:method :get,
                     :uri "/logs",
-                    :headers '("Authorization: Basic XXXXX" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}
-                   "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+                    :headers '("Authorization: Basic XXXXX" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")})
           (get :status))))
 
   (it "handles range requests"
     (should= "HTTP/1.1 206 Partial Content\n"
       (-> (handler {:method :get,
                     :uri "/partial_content.txt",
-                    :headers '("Range: bytes=0-4" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}
-                   "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+                    :headers '("Range: bytes=0-4" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")})
           (get :status)))
 
     (should= "This is"
       (->> (:body (handler {:method :get,
                             :uri "/partial_content.txt",
-                            :headers '("Range: bytes=0-6" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}
-                           "/Users/robert/clojure-1.6.0/cob_spec-master/public"))
+                            :headers '("Range: bytes=0-6" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}))
            (map char)
            (apply str)))
 
     (should= "ll a 206.\n"
       (->> (:body (handler {:method :get,
                             :uri "/partial_content.txt",
-                            :headers '("Range: bytes=-10" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}
-                           "/Users/robert/clojure-1.6.0/cob_spec-master/public"))
+                            :headers '("Range: bytes=-10" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}))
            (map char)
            (apply str)))
                     
     (should= "a 206.\n"
       (->> (:body (handler {:method :get,
                             :uri "/partial_content.txt",
-                            :headers '("Range: bytes=70-" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}
-                           "/Users/robert/clojure-1.6.0/cob_spec-master/public"))
+                            :headers '("Range: bytes=70-" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}))
            (map char)
            (apply str)))
 
     (should= ""
       (->> (:body (handler {:method :get,
                             :uri "/partial_content.txt",
-                            :headers '("Range: bytes=20-10" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}
-                           "/Users/robert/clojure-1.6.0/cob_spec-master/public"))
+                            :headers '("Range: bytes=20-10" "Host: localhost:5000" "Connection: Keep-Alive" "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)" "Accept-Encoding: gzip,deflate")}))
            (map char)
            (apply str)))))
-
 
 (describe "Post handler"
   (let [result (spit (clojure.java.io/file "/tmp/form") "" :append false)
@@ -104,13 +97,3 @@
       (should (re-find #"Test123" (slurp (clojure.java.io/file "/tmp/form")))))))
     
 (run-specs)
-
-
-
-
-
-
-
-
-
-

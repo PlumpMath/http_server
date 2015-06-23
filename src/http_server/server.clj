@@ -9,13 +9,13 @@
 
 (defn connect [port] (new ServerSocket port 150))
 
-(defn send [socket handler directory]
+(defn send [socket handler]
   (let [input (io/input-stream socket)
         rdr (io/reader input)
         [msg1 & headers] (read/read-msgs rdr [])
         body (read/read-body rdr)
         amsg (adaptor/adaptor msg1 headers body)
-        hmsg (handler amsg directory)
+        hmsg (handler amsg)
         output (io/output-stream socket)]
     (io/copy (hmsg :status) output)
     (io/copy (hmsg :header) output)
@@ -23,7 +23,7 @@
     (.flush output)
     (log/log msg1)))
 
-(defn server [port handler directory]
+(defn server [port handler]
   (let [running (atom true)]
     (future
       (with-open [server-socket (ServerSocket. port 150)]
@@ -31,7 +31,7 @@
           (let [socket (.accept server-socket)]
             (future
               (try
-                (send socket handler directory)
+                (send socket handler)
                 (catch Throwable t
                   (errorlog/error t "Error: "))
                 (finally

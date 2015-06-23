@@ -23,8 +23,8 @@
   (let [size (- upper lower)]
     (take size (drop lower file-bytes))))
 
-(defn file-range [uri headers directory]
-  (let [PUB_DIR directory
+(defn file-range [uri headers]
+  (let [PUB_DIR (System/getProperty "PUB_DIR")
         file (io/file (str PUB_DIR uri))
         file-bytes (file-to-byte-array file)
         size (count file-bytes)
@@ -42,8 +42,8 @@
 (defn base64-decode [s]
   (->> s base64-to-bytes (map char) (apply str)))
 
-(defn generate-file [uri body directory]
-  (let [PUB_DIR directory
+(defn generate-file [uri body]
+  (let [PUB_DIR (System/getProperty "PUB_DIR")
         file (io/file (str PUB_DIR uri))]
     (spit file body)))
 
@@ -82,7 +82,7 @@
   (let [file (io/file "/tmp/form")]
     (spit file (str body "\n") :append true)))
 
-(defn empty-form [directory]
+(defn empty-form []
   (let [file (io/file "/tmp/form")]
     (spit file (str "<HTML>\n"
                     "<head></head>\n"
@@ -93,8 +93,8 @@
                     "</body>\n"
                     "</HTML>\n"))))
 
-(defn show-file [uri directory]
-  (let [PUB_DIR directory]
+(defn show-file [uri]
+  (let [PUB_DIR (System/getProperty "PUB_DIR")]
     (io/file (str PUB_DIR uri))))
 
 (defn show-form []

@@ -25,14 +25,14 @@
                      (-> headers first (str/split #" ") last))]
     (if b64-string (= userid-password (files/base64-decode b64-string)))))
 
-(defn file-in-directory? [uri directory]
-  (let [PUB_DIR directory
+(defn file-in-directory? [uri]
+  (let [PUB_DIR (System/getProperty "PUB_DIR")
         file (subs uri 1)
         files (rest (file-seq (io/file PUB_DIR)))
         filenames (map #(.getName %) files)]
     (some #{file} filenames)))
 
-(defn get-handler [{:keys [uri extension query headers] :as request} directory]
+(defn get-handler [{:keys [uri extension query headers] :as request}]
   (cond query
         (-> (empty-response)
             (assoc :status (http/status 200)
@@ -41,7 +41,7 @@
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/header :html)
-                   :body (view/show-index directory)))
+                   :body (view/show-index)))
         (= uri "/form")
         (-> (empty-response)
             (assoc :status (http/status 200)
@@ -68,9 +68,9 @@
                    :header (http/add-redirect-to-header (http/header :empty)
                                                       headers)))
         (range-in-header? headers)
-        (-> (get-handler (http/remove-range request) directory)
+        (-> (get-handler (http/remove-range request))
             (assoc :status (http/status 206)
-                   :body (files/file-range uri headers directory)))
+                   :body (files/file-range uri headers)))
         (files/patched-file? uri)
         (-> (empty-response)
             (assoc :status (http/status 200)
@@ -80,29 +80,29 @@
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/image-header extension)
-                   :body (files/show-file uri directory)))
+                   :body (files/show-file uri)))
         (= extension "txt")
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/header :text)
-                   :body (files/show-file uri directory)))
+                   :body (files/show-file uri)))
         (= extension "html")
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/header :html)
-                   :body (files/show-file uri directory)))
-        (file-in-directory? uri directory)
+                   :body (files/show-file uri)))
+        (file-in-directory? uri)
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/header :text) ;; Assumed to be text if no ext
-                   :body (files/show-file uri directory)))
+                   :body (files/show-file uri)))
         :else
         (-> (empty-response)
             (assoc :status (http/status 404)
                    :header (http/header :404)
                    :body (view/show-404)))))
 
-(defn put-handler [{:keys [uri body] :as request} directory]
+(defn put-handler [{:keys [uri body] :as request}]
   (cond (= uri "/method_options")
         (-> (empty-response)
             (assoc :status (http/status 200)
@@ -116,7 +116,7 @@
         (-> (empty-response)
             (assoc :status (http/status 405)))))
 
-(defn post-handler [{:keys [uri body] :as request} directory]
+(defn post-handler [{:keys [uri body] :as request}]
   (cond (= uri "/method_options")
         (-> (empty-response)
             (assoc :status (http/status 200)
@@ -130,14 +130,14 @@
         (-> (empty-response)
             (assoc :status (http/status 405)))))
 
-(defn patch-handler [{:keys [uri headers body] :as request} directory]
+(defn patch-handler [{:keys [uri headers body] :as request}]
   (files/add-patch uri headers body)
   (-> (empty-response)
       (assoc :status (http/status 204))))
 
-(defn delete-handler [{:keys [uri] :as request} directory]
+(defn delete-handler [{:keys [uri] :as request}]
   (cond (= uri "/form")
-        (do (files/empty-form directory)
+        (do (files/empty-form)
             (-> (empty-response)
                 (assoc :status (http/status 200))))
         :else (empty-response)))
@@ -160,13 +160,13 @@
                                http/add-options-to-header)))
         :else (empty-response)))
 
-(defn handler [{:keys [method] :as request} directory]
+(defn handler [{:keys [method] :as request}]
   (case method
-    :get (get-handler request directory)
-    :put (put-handler request directory)
-    :post (post-handler request directory)
-    :patch (patch-handler request directory)
-    :delete (delete-handler request directory)
+    :get (get-handler request)
+    :put (put-handler request)
+    :post (post-handler request)
+    :patch (patch-handler request)
+    :delete (delete-handler request)
     :head (head-handler request)
     :options (options-handler request)
     (empty-response)))
