@@ -15,7 +15,7 @@
 
 (defn header [key]
   (let [type (case key
-               :text "text/plain"
+               :txt "text/plain"
                :empty "empty/empty"
                "text/html")]
     (str "Server: HTTP server/0.1 Clojure/1.6.0\n"

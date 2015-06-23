@@ -35,6 +35,26 @@
         filenames (map #(.getName %) files)]
     (some #{file} filenames)))
 
+(defn get-logs [headers]
+  (if (correct-authentication? headers)
+    (-> (empty-response)
+        (assoc :status (http/status 200)
+               :header (http/header :txt)
+               :body (files/show-logs)))
+    (-> (empty-response)
+        (assoc :status (http/status 401)
+               :header (http/header :html)
+               :body (view/show-authentication-req)))))
+
+(defn get-file [uri extension]
+  (let [key (case extension
+              "txt" :txt
+              "html" :html)]
+    (-> (empty-response)
+        (assoc :status (http/status 200)
+               :header (http/header key)
+               :body (files/show-file uri)))))
+                
 (defn get-handler [{:keys [uri extension query headers] :as request}]
   (cond query
         (-> (empty-response)
@@ -50,16 +70,7 @@
             (assoc :status (http/status 200)
                    :header (http/header :html)
                    :body (files/show-form)))
-        (= uri "/logs")
-        (if (correct-authentication? headers)
-          (-> (empty-response)
-              (assoc :status (http/status 200)
-                     :header (http/header :text)
-                     :body (files/show-logs)))
-          (-> (empty-response)
-              (assoc :status (http/status 401)
-                     :header (http/header :html)
-                     :body (view/show-authentication-req))))
+        (= uri "/logs") (get-logs headers)
         (= uri "/method_options")
         (-> (empty-response)
             (assoc :status (http/status 200)
@@ -77,27 +88,19 @@
         (files/patched-file? uri)
         (-> (empty-response)
             (assoc :status (http/status 200)
-                   :header (http/header :text)
+                   :header (http/header :txt)
                    :body (files/show-patched-file uri)))
         (image? extension)
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/image-header extension)
                    :body (files/show-file uri)))
-        (= extension "txt")
-        (-> (empty-response)
-            (assoc :status (http/status 200)
-                   :header (http/header :text)
-                   :body (files/show-file uri)))
-        (= extension "html")
-        (-> (empty-response)
-            (assoc :status (http/status 200)
-                   :header (http/header :html)
-                   :body (files/show-file uri)))
+        (= extension "txt") (get-file uri extension)
+        (= extension "html") (get-file uri extension)
         (file-in-directory? uri)
         (-> (empty-response)
             (assoc :status (http/status 200)
-                   :header (http/header :text) ;; Assumed to be text if no ext
+                   :header (http/header :txt) ;; Assumed to be text if no ext
                    :body (files/show-file uri)))
         :else
         (-> (empty-response)
