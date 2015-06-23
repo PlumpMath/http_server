@@ -20,9 +20,9 @@
                      (str "<h2>Directory listing for /</h2>"
                           "<hr>\n"
                           "<ul>\n"
-                          (apply str links)
-                          "</ul>\n"
-                          "<hr>\n")))))
+                           (apply str links)
+                           "</ul>\n"
+                           "<hr>\n")))))
 
 (defn show-404 []
   (-> (empty-body)

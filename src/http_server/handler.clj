@@ -19,6 +19,9 @@
 (defn auth-in-header? [headers]
   (some #(re-find #"Authorization:" %) headers))
 
+(defn image? [extension]
+  (some #(= extension %) ["jpeg" "gif" "png"]))
+
 (defn correct-authentication? [headers]
   (let [userid-password "admin:hunter2"
         b64-string (if (auth-in-header? headers)
@@ -76,7 +79,7 @@
             (assoc :status (http/status 200)
                    :header (http/header :text)
                    :body (files/show-patched-file uri)))
-        (some #(= extension %) ["jpeg" "gif" "png"])
+        (image? extension)
         (-> (empty-response)
             (assoc :status (http/status 200)
                    :header (http/image-header extension)

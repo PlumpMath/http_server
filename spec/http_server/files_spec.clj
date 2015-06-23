@@ -81,7 +81,5 @@
   (it "enters the content of body as the form entry"
     (let [result (generate-form "foobar")]
       (should-contain "foobar" (slurp "/tmp/form")))))
-  
-  
 
 (run-specs)

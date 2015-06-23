@@ -3,14 +3,15 @@
 
 (defn status [code]
   (let [output (case code
-                 200 " OK\n"
-                 204 " No Content\n"
-                 206 " Partial Content\n"
-                 302 " Found\n"
-                 401 " Unauthorized\n"
-                 404 " File not found\n"
-                 405 " Method not allowed\n")]
-    (str "HTTP/1.1 " code output)))
+                 200 "200 OK\n"
+                 204 "204 No Content\n"
+                 206 "206 Partial Content\n"
+                 302 "302 Found\n"
+                 401 "401 Unauthorized\n"
+                 404 "404 File not found\n"
+                 405 "405 Method not allowed\n"
+                 "400 Bad Request\n")]
+    (str "HTTP/1.1 " output)))
 
 (defn header [key]
   (let [type (case key
