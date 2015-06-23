@@ -14,10 +14,10 @@
   (some #(re-find #"Range:" %) headers))
 
 (defn patch-in-header? [headers]
-  (when headers (re-find #"If-Match:" (first headers))))
+  (some #(re-find #"If-Match:" %) headers))
 
 (defn auth-in-header? [headers]
-  (when headers (re-find #"Authorization:" (first headers))))
+  (some #(re-find #"Authorization:" %) headers))
 
 (defn correct-authentication? [headers]
   (let [userid-password "admin:hunter2"

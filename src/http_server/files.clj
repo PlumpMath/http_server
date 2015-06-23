@@ -1,5 +1,6 @@
 (ns http-server.files
   (:require [clojure.java.io :as io]
+            [clojure.tools.logging :as errorlog]
             [clojure.edn :as edn]
             [clojure.string :as str]))
 
@@ -33,7 +34,10 @@
     (byte-array bytesrange)))
 
 (defn base64-to-bytes [b64]
-  (into [] (.decode (java.util.Base64/getDecoder) b64)))
+  (try
+    (into [] (.decode (java.util.Base64/getDecoder) b64))
+    (catch Throwable t
+      (errorlog/error t "Error: "))))
 
 (defn base64-decode [s]
   (->> s base64-to-bytes (map char) (apply str)))

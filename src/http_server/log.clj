@@ -2,5 +2,5 @@
   ;; (:require [clojure.java.io :as io]
   ;;           [clojure.string :as str]))
 
-(defn log [request]
-  (spit "/tmp/http_server.log" (str request "\n\n") :append true))
+(defn log [s]
+  (spit "/tmp/http_server.log" (str s "\n\n") :append true))
