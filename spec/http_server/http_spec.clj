@@ -3,7 +3,7 @@
             [http-server.http :refer :all]))
 
 (System/setProperty "PUB_DIR"
-                    "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+                    "public")
 
 (describe "http-server.http"
   

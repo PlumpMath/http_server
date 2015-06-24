@@ -4,7 +4,7 @@
             [http-server.main :refer :all]))
 
 (System/setProperty "PUB_DIR"
-                    "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+                    "public")
 
 #_(do (sh/sh "mkdir" "-p" "tmp/view-tests")
     (spit "tmp/view-tests/file01.txt" "file 01 contents")

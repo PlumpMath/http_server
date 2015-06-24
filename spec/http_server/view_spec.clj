@@ -8,11 +8,11 @@
     (spit "tmp/view-tests/file02.txt" "file 02 contents")
     (spit "tmp/view-tests/file03.txt" "file 03 contents"))
 
-(System/setProperty "PUB_DIR" "tmp/view-tests")
+;(System/setProperty "PUB_DIR" "tmp/view-tests")
 
 (describe "http-server.view"
 
-  (describe "show-index tests"
+  #_(describe "show-index tests"
     
     (it "shows index of a directory"
       (should= (str "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"

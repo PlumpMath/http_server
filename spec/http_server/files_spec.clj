@@ -3,20 +3,7 @@
             [clojure.java.shell :as sh]
             [http-server.files :refer :all]))
 
-
-(println "PROPERTY PUB_DIR BEFORE SET:")
-(println (System/getProperty "PUB_DIR"))
-(println "END PROPERTY BEFORE SET")         
-
-(println "START PWD")
-(println (str (sh/sh "PWD")))
-(println "END PWD")
-
 (System/setProperty "PUB_DIR" "public")
-
-(println "PROPERTY PUB_DIR AFTER SET:")
-(println (System/getProperty "PUB_DIR"))
-(println "END PROPERTY AFTER SET")         
 
 (describe "http.server-files"
 
@@ -30,7 +17,7 @@
 
   (describe "Ranges from files"
 
-    #_(it "can provide the range of a file as a byte array"
+    (it "can provide the range of a file as a byte array"
       (should= [\f \i \l \e]
         (->> (file-range "/file1" ["Range: bytes=0-3"])
              (map char)))
