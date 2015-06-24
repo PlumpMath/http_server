@@ -17,7 +17,7 @@
 
   (describe "Ranges from files"
 
-    (it "can provide the range of a file as a byte array"
+    #_(it "can provide the range of a file as a byte array"
       (should= [\f \i \l \e]
         (->> (file-range "/file1" ["Range: bytes=0-3"])
              (map char)))
