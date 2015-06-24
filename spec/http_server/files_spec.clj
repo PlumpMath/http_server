@@ -2,8 +2,11 @@
   (:require [speclj.core :refer :all]
             [http-server.files :refer :all]))
 
-(System/setProperty "PUB_DIR"
-                    "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+(System/setProperty "PUB_DIR" "public")
+
+(println "PROPERTY PUB_DIR:")
+(println (System/getProperty "PUB_DIR"))
+(println "END PROPERTY")         
 
 (describe "http.server-files"
 
