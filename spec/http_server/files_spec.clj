@@ -1,12 +1,22 @@
 (ns http-server.files-spec
   (:require [speclj.core :refer :all]
+            [clojure.java.shell :as sh]
             [http-server.files :refer :all]))
+
+
+(println "PROPERTY PUB_DIR BEFORE SET:")
+(println (System/getProperty "PUB_DIR"))
+(println "END PROPERTY BEFORE SET")         
+
+(println "START PWD")
+(println (str (sh/sh "PWD")))
+(println "END PWD")
 
 (System/setProperty "PUB_DIR" "public")
 
-(println "PROPERTY PUB_DIR:")
+(println "PROPERTY PUB_DIR AFTER SET:")
 (println (System/getProperty "PUB_DIR"))
-(println "END PROPERTY")         
+(println "END PROPERTY AFTER SET")         
 
 (describe "http.server-files"
 
