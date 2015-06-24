@@ -154,7 +154,7 @@
                                          :uri "/image.gif"
                                          :extension "gif"})))))
   
-  #_(describe "Post handler"
+  (describe "Post handler"
     (let [result (spit (clojure.java.io/file "tmp/form") "" :append false)
           result (http-server.files/generate-form "Test123")]
       
