@@ -49,7 +49,7 @@
     #_(it "file-in-directory?"
       (should (file-in-directory? "/file1"))
       
-      (should-not (file-in-directory? "/file4")))) 
+      (should-not (file-in-directory? "/file4"))))
 
   (describe "Get handler"
 
