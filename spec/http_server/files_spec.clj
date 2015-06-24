@@ -15,7 +15,7 @@
           (->> (file-to-byte-array (clojure.java.io/file "tmp/test.txt"))
                (map char))))))
 
-  #_(describe "Ranges from files"
+  (describe "Ranges from files"
 
     (it "can provide the range of a file as a byte array"
       (should= [\f \i \l \e]
@@ -61,7 +61,7 @@
       (should= [98 97 115 101 54 52 32 100 101 99 111 100 101 114]
         (base64-to-bytes "YmFzZTY0IGRlY29kZXI="))))
 
-  #_(describe "Tests for patch functionality"
+  (describe "Tests for patch functionality"
     (let [PUB_DIR (System/getProperty "PUB_DIR")
           result (spit (clojure.java.io/file "tmp/patches.edn") "")]
 
@@ -87,7 +87,7 @@
                          "foobar")]
           (should= "foobar" (show-patched-file "/file1"))))))
 
-  #_(describe "Tests for form file functionality"
+  (describe "Tests for form file functionality"
 
     (it "no previous entries"
       (let [result (generate-empty-form)]

@@ -46,7 +46,7 @@
       (should-not (correct-authentication?
                    ["Authorization: Basic Zm9vYmFy"])))
 
-    (it "file-in-directory?"
+    #_(it "file-in-directory?"
       (should (file-in-directory? "/file1"))
       
       (should-not (file-in-directory? "/file4")))) 
@@ -66,7 +66,7 @@
                            :uri "/logs",
                            :headers ["Authorization: Basic Zm9vYmFy"]}))))
 
-    (it "handles range requests"
+    #_(it "handles range requests"
       (should= "HTTP/1.1 206 Partial Content\n"
         (:status (handler {:method :get,
                            :uri "/partial_content.txt",
