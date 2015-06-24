@@ -20,4 +20,4 @@ Updated: June 15 2015 by Robert Johansson.
 
 ## Requirements
 
-This application requires Java version 8.
+This application requires Java version 7.

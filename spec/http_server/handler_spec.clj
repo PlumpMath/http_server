@@ -3,66 +3,48 @@
             [http-server.handler :refer :all])
   (:refer-clojure :exclude [send]))
 
-(System/setProperty "PUB_DIR" "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+(System/setProperty "PUB_DIR"
+                    "/Users/robert/clojure-1.6.0/cob_spec-master/public")
 
 (describe "http-server.handler"
 
   (describe "Query functions"
     
     (it "range-in-header?"
-      (should (range-in-header? '("Range: bytes=0-4"
-                                  "Host: localhost:5000"
-                                  "Connection: Keep-Alive"
-                                  "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)"
-                                  "Accept-Encoding: gzip,deflate")))
+      (should (range-in-header? ["Range: bytes=0-4"
+                                  "Host: localhost:5000"]))
 
-      (should (range-in-header? '("Host: localhost:5000"
-                                  "Connection: Keep-Alive"
-                                  "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)"
-                                  "Range: bytes=0-4"
-                                  "Accept-Encoding: gzip,deflate")))
+      (should (range-in-header? ["Host: localhost:5000"
+                                  "Range: bytes=0-4"]))
 
-      (should-not (range-in-header? '("Host: localhost:5000"
-                                      "Connection: Keep-Alive"
-                                      "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)"
-                                      "Accept-Encoding: gzip,deflate"))))
+      (should-not (range-in-header? ["Host: localhost:5000"])))
 
     (it "patch-in-header?"
-      (should (patch-in-header? '("If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"
-                                  "Content-Length: 15"
-                                  "Host: localhost:5000"
-                                  "Connection: Keep-Alive"
-                                  "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)"
-                                  "Accept-Encoding: gzip,deflate")))
+      (should (patch-in-header?
+               ["If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"
+                "Host: localhost:5000"]))
       
-      (should (patch-in-header? '("Content-Length: 15"
-                                  "Host: localhost:5000"
-                                  "Connection: Keep-Alive"
-                                  "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)"
-                                  "If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"
-                                  "Accept-Encoding: gzip,deflate")))
+      (should (patch-in-header?
+               ["Host: localhost:5000"
+                "If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"]))
 
-      (should-not (patch-in-header? '("Content-Length: 15"
-                                      "Host: localhost:5000"
-                                      "Connection: Keep-Alive"
-                                      "User-Agent: Apache-HttpClient/4.3.5 (java 1.5)"
-                                      "Accept-Encoding: gzip,deflate"))))
+      (should-not (patch-in-header? ["Host: localhost:5000"])))
     
     (it "auth-in-header?"
-      (should (auth-in-header? '("Authorization: Basic YWRtaW46aHVudGVyMg=="
-                                 "Host: localhost:5000")))
+      (should (auth-in-header? ["Authorization: Basic YWRtaW46aHVudGVyMg=="
+                                 "Host: localhost:5000"]))
 
-      (should (auth-in-header? '("Host: localhost:5000"
-                                 "Authorization: Basic YWRtaW46aHVudGVyMg==")))
+      (should (auth-in-header? ["Host: localhost:5000"
+                                 "Authorization: Basic YWRtaW46aHVudGVyMg=="]))
 
-      (should-not (auth-in-header? '("Host: localhost:5000"))))
+      (should-not (auth-in-header? ["Host: localhost:5000"])))
 
     (it "correct-authentication?"
-      (should (correct-authentication? '("Authorization: Basic YWRtaW46aHVudGVyMg=="
-                                         "Host: localhost:5000" "Connection: Keep-Alive")))
+      (should (correct-authentication?
+               ["Authorization: Basic YWRtaW46aHVudGVyMg=="]))
 
-      (should-not (correct-authentication? '("Authorization: Basic xxxxx"
-                                             "Host: localhost:5000"))))
+      (should-not (correct-authentication?
+                   ["Authorization: Basic Zm9vYmFy"])))
 
     (it "file-in-directory?"
       (should (file-in-directory? "/file1"))
@@ -73,54 +55,48 @@
 
     (it "should only show logs if correct password"
       (should= "HTTP/1.1 200 OK\n"
-        (:status (handler {:method :get,
-                           :uri "/logs",
-                           :headers '("Authorization: Basic YWRtaW46aHVudGVyMg=="
-                                      "Host: localhost:5000")}))))
+        (:status
+         (handler {:method :get,
+                   :uri "/logs",
+                   :headers ["Authorization: Basic YWRtaW46aHVudGVyMg=="]}))))
 
     (it "should only show logs if correct password"
       (should= "HTTP/1.1 401 Unauthorized\n"
         (:status (handler {:method :get,
                            :uri "/logs",
-                           :headers '("Authorization: Basic XXXXX"
-                                      "Host: localhost:5000")}))))
+                           :headers ["Authorization: Basic Zm9vYmFy"]}))))
 
     (it "handles range requests"
       (should= "HTTP/1.1 206 Partial Content\n"
         (:status (handler {:method :get,
                            :uri "/partial_content.txt",
-                           :headers '("Range: bytes=0-4"
-                                      "Host: localhost:5000")})))
+                           :headers ["Range: bytes=0-4"]})))
 
       (should= "This is"
         (->> (:body (handler {:method :get,
                               :uri "/partial_content.txt",
-                              :headers '("Range: bytes=0-6"
-                                         "Host: localhost:5000")}))
+                              :headers ["Range: bytes=0-6"]}))
              (map char)
              (apply str)))
 
       (should= "ll a 206.\n"
         (->> (:body (handler {:method :get,
                               :uri "/partial_content.txt",
-                              :headers '("Range: bytes=-10"
-                                         "Host: localhost:5000")}))
+                              :headers ["Range: bytes=-10"]}))
              (map char)
              (apply str)))
       
       (should= "a 206.\n"
         (->> (:body (handler {:method :get,
                               :uri "/partial_content.txt",
-                              :headers '("Range: bytes=70-"
-                                         "Host: localhost:5000")}))
+                              :headers ["Range: bytes=70-"]}))
              (map char)
              (apply str)))
 
       (should= ""
         (->> (:body (handler {:method :get,
                               :uri "/partial_content.txt",
-                              :headers '("Range: bytes=20-10"
-                                         "Host: localhost:5000")}))
+                              :headers ["Range: bytes=20-10"]}))
              (map char)
              (apply str)))))
 
@@ -128,24 +104,23 @@
 
     (it "returns status 200 if correct auth"
       (should= "HTTP/1.1 200 OK\n"
-        (:status (handler {:method :get
-                           :uri "/logs"
-                           :headers '("Authorization: Basic YWRtaW46aHVudGVyMg=="
-                                      "Host: localhost:5000")}))))
+        (:status
+         (handler {:method :get
+                   :uri "/logs"
+                   :headers ["Authorization: Basic YWRtaW46aHVudGVyMg=="]}))))
 
     (it "returns status 401 if not correct auth"
       (should= "HTTP/1.1 401 Unauthorized\n"
         (:status (handler {:method :get
                            :uri "/logs"
-                           :headers '("Authorization: Basic XXXXX"
-                                      "Host: localhost:5000")}))))
+                           :headers ["Authorization: Basic Zm9vYmFy"]}))))
 
     (it "shows auth req if not correct auth"
       (should-contain "Authentication required"
-                      (:body (handler {:method :get
-                                       :uri "/logs"
-                                       :headers '("Authorization: Basic XXXXX"
-                                                  "Host: localhost:5000")})))))
+                      (:body
+                       (handler {:method :get
+                                 :uri "/logs"
+                                 :headers ["Authorization: Basic Zm9vYmFy"]})))))
 
   (describe "GET for files"
 
@@ -179,13 +154,12 @@
                                          :uri "/image.gif"
                                          :extension "gif"})))))
   
-  
-  
-  
-
   (describe "Post handler"
     (let [result (spit (clojure.java.io/file "/tmp/form") "" :append false)
           result (http-server.files/generate-form "Test123")]
       
       (it "posts go to /tmp/form"
-        (should (re-find #"Test123" (slurp (clojure.java.io/file "/tmp/form"))))))))
+        (should
+          (re-find #"Test123" (slurp (clojure.java.io/file "/tmp/form"))))))))
+
+(run-specs)

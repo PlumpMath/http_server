@@ -2,7 +2,8 @@
   (:require [speclj.core :refer :all]
             [http-server.files :refer :all]))
 
-(System/setProperty "PUB_DIR" "/Users/robert/clojure-1.6.0/cob_spec-master/public")
+(System/setProperty "PUB_DIR"
+                    "/Users/robert/clojure-1.6.0/cob_spec-master/public")
 
 (describe "http.server-files"
 
@@ -18,15 +19,15 @@
 
     (it "can provide the range of a file as a byte array"
       (should= [\f \i \l \e]
-        (->> (file-range "/file1" '("Range: bytes=0-3" "Host: localhost:5000"))
+        (->> (file-range "/file1" ["Range: bytes=0-3"])
              (map char)))
 
       (should= [\c \o \n \t \e \n \t \s]
-        (->> (file-range "/file1" '("Range: bytes=6-" "Host: localhost:5000"))
+        (->> (file-range "/file1" ["Range: bytes=6-"])
              (map char)))
       
       (should= [\e \n \t \s]
-        (->> (file-range "/file1" '("Range: bytes=-4" "Host: localhost:5000"))
+        (->> (file-range "/file1" ["Range: bytes=-4"])
              (map char))))
 
     (it "can return the range of a file as a bytes"
@@ -72,16 +73,18 @@
           (slurp (clojure.java.io/file (str PUB_DIR "/file1")))))
       
       (it "should not change a file for patch to work"
-        (let [result (add-patch "/file1"
-                                '("If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec" "Content-Length: 6" "Host: localhost:5000")
-                                "foobar")]
+        (let [result
+              (add-patch "/file1"
+                         ["If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"]
+                         "foobar")]
           (should= "file1 contents"
             (slurp (clojure.java.io/file (str PUB_DIR "/file1"))))))
 
       (it "shows patched content"
-        (let [result (add-patch "/file1"
-                                '("If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec" "Content-Length: 6" "Host: localhost:5000")
-                                "foobar")]
+        (let [result
+              (add-patch "/file1"
+                         ["If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"]
+                         "foobar")]
           (should= "foobar" (show-patched-file "/file1"))))))
 
   (describe "Tests for form file functionality"
