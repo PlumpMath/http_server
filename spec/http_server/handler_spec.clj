@@ -155,11 +155,11 @@
                                          :extension "gif"})))))
   
   (describe "Post handler"
-    (let [result (spit (clojure.java.io/file "/tmp/form") "" :append false)
+    (let [result (spit (clojure.java.io/file "tmp/form") "" :append false)
           result (http-server.files/generate-form "Test123")]
       
-      (it "posts go to /tmp/form"
+      (it "posts go to tmp/form"
         (should
-          (re-find #"Test123" (slurp (clojure.java.io/file "/tmp/form"))))))))
+          (re-find #"Test123" (slurp (clojure.java.io/file "tmp/form"))))))))
 
 (run-specs)

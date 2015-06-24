@@ -8,11 +8,11 @@
 (describe "http.server-files"
 
   (describe "Reads a file to a byte array"
-    (let [result (spit "/tmp/test.txt" "foo" :append false)]
+    (let [result (spit "tmp/test.txt" "foo")]
 
       (it "reads a file to a byte array"
         (should= [\f \o \o]
-          (->> (file-to-byte-array (clojure.java.io/file "/tmp/test.txt"))
+          (->> (file-to-byte-array (clojure.java.io/file "tmp/test.txt"))
                (map char))))))
 
   (describe "Ranges from files"
@@ -63,10 +63,10 @@
 
   (describe "Tests for patch functionality"
     (let [PUB_DIR (System/getProperty "PUB_DIR")
-          result (spit (clojure.java.io/file "/tmp/patches.edn") "")]
+          result (spit (clojure.java.io/file "tmp/patches.edn") "")]
 
       (it "demonstrates that patch file is empty at start of this test"
-        (should (empty? (slurp (clojure.java.io/file "/tmp/patches.edn")))))
+        (should (empty? (slurp (clojure.java.io/file "tmp/patches.edn")))))
       
       (it "demonstrates what contents of file1 is before patch"
         (should= "file1 contents"
@@ -91,10 +91,10 @@
 
     (it "no previous entries"
       (let [result (generate-empty-form)]
-        (should-not-contain "foobar" (slurp "/tmp/form"))))
+        (should-not-contain "foobar" (slurp "tmp/form"))))
 
     (it "enters the content of body as the form entry"
       (let [result (generate-form "foobar")]
-        (should-contain "foobar" (slurp "/tmp/form"))))))
+        (should-contain "foobar" (slurp "tmp/form"))))))
 
 (run-specs)

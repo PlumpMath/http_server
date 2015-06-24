@@ -34,9 +34,9 @@
     (should-throw
      (read-msgs (java.io.StringReader. "foo") [])))
 
-  (let [result (spit "/tmp/test.txt" "foo" :append false)]
+  (let [result (spit "tmp/test.txt" "foo")]
     (it "reads to vector of bytes while stream is ready"
       (should= [102 111 111]
-        (read-while-ready (clojure.java.io/reader "/tmp/test.txt") []))))))
+        (read-while-ready (clojure.java.io/reader "tmp/test.txt") []))))))
 
 (run-specs)

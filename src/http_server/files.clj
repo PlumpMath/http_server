@@ -44,7 +44,7 @@
   (->> s base64-to-bytes (map char) (apply str)))
 
 (defn patched-file? [uri]
-  (let [file (io/file "/tmp/patches.edn")
+  (let [file (io/file "tmp/patches.edn")
         patched-data (if (.exists file)
                        (-> file
                            slurp
@@ -53,7 +53,7 @@
     (get-in patched-data [name-key :id])))
   
 (defn add-patch [uri headers body]
-  (let [file (io/file "/tmp/patches.edn")
+  (let [file (io/file "tmp/patches.edn")
         patched-data (if (.exists file)
                        (-> file
                            slurp
@@ -66,7 +66,7 @@
     (spit file (.toString patched-data))))
 
 (defn show-patched-file [uri]
-  (let [file (io/file "/tmp/patches.edn")
+  (let [file (io/file "tmp/patches.edn")
         name (subs uri 1)
         patched-data (if (.exists file)
                        (-> file
@@ -75,11 +75,11 @@
     (get-in patched-data [(keyword name) :body])))
 
 (defn generate-form [body]
-  (let [file (io/file "/tmp/form")]
+  (let [file (io/file "tmp/form")]
     (spit file (str body "\n") :append true)))
 
 (defn generate-empty-form []
-  (let [file (io/file "/tmp/form")]
+  (let [file (io/file "tmp/form")]
     (spit file (str "<HTML>\n"
                     "<head></head>\n"
                     "<body>\n"
@@ -94,8 +94,8 @@
     (io/file (str PUB_DIR uri))))
 
 (defn show-form []
-  (io/file "/tmp/form"))
+  (io/file "tmp/form"))
 
 (defn show-logs []
-  (io/file "/tmp/http_server.log"))
+  (io/file "tmp/http_server.log"))
 
