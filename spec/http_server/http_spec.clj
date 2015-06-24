@@ -18,6 +18,6 @@
 
   (it "decodes a string from the URL"
     (should= "my = apples\nare green and red\n"
-      (decode-parameters "my=apples&are=green+and+red"))))
+      (decode-parameters "my=apples&are+green+and+red"))))
 
 (run-specs)
