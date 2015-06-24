@@ -15,7 +15,7 @@
           (->> (file-to-byte-array (clojure.java.io/file "tmp/test.txt"))
                (map char))))))
 
-  (describe "Ranges from files"
+  #_(describe "Ranges from files"
 
     (it "can provide the range of a file as a byte array"
       (should= [\f \i \l \e]
