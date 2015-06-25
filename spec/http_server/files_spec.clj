@@ -3,6 +3,9 @@
             [clojure.java.shell :as sh]
             [http-server.files :refer :all]))
 
+(defn setup-tmp-files [tmpdir]
+  (spit (str tmpdir "/test.txt") "foo"))
+
 (defn get-file-from-tmp [file]
   (str (System/getProperty "TMP_DIR")
        "/" file))
@@ -11,19 +14,17 @@
   (around [it]
           (System/setProperty "PUB_DIR" "public")
           (System/setProperty "TMP_DIR" "tmp")
+          (setup-tmp-files (System/getProperty "TMP_DIR"))
           (it))
   
   (describe "Reads a file to a byte array"
-    (let [result (spit
-                  (get-file-from-tmp "test.txt")
-                  "foo")]
 
       (it "reads a file to a byte array"
         (should= [\f \o \o]
           (->> (file-to-byte-array
                 (clojure.java.io/file
                  (get-file-from-tmp "test.txt")))
-               (map char))))))
+               (map char)))))
 
   (describe "Ranges from files"
 
