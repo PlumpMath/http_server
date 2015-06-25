@@ -2,11 +2,8 @@
   (:require [speclj.core :refer :all]
             [http-server.http :refer :all]))
 
-(System/setProperty "PUB_DIR"
-                    "public")
-
 (describe "http-server.http"
-  
+
   (describe "Status codes"
     
     (it "can return a status code"

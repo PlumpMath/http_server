@@ -3,9 +3,6 @@
             [http-server.server :refer :all])
     (:refer-clojure :exclude [send]))
 
-(System/setProperty "PUB_DIR"
-                    "public")
-
 (describe "http-server.server"
 
   (describe "Server main function"

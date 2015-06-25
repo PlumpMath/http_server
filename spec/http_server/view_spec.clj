@@ -3,16 +3,23 @@
             [clojure.java.shell :as sh]
             [http-server.view :refer :all]))
 
-(do (sh/sh "mkdir" "-p" "tmp/view-tests")
-    (spit "tmp/view-tests/file01.txt" "file 01 contents")
-    (spit "tmp/view-tests/file02.txt" "file 02 contents")
-    (spit "tmp/view-tests/file03.txt" "file 03 contents"))
-
-;(System/setProperty "PUB_DIR" "tmp/view-tests")
+(defn setup-tmp-files [tmpdir]
+  (sh/sh "mkdir" "-p" (str tmpdir "/view-tests"))
+  (spit (str tmpdir "/view-tests/file01.txt") "file 01 contents")
+  (spit (str tmpdir "/view-tests/file02.txt") "file 02 contents")
+  (spit (str tmpdir "/view-tests/file03.txt") "file 03 contents"))
 
 (describe "http-server.view"
-
-  #_(describe "show-index tests"
+  
+  (around [it]
+          (System/setProperty "TMP_DIR" "tmp")
+          (setup-tmp-files (System/getProperty "TMP_DIR"))
+          (System/setProperty "PUB_DIR"
+                              (str (System/getProperty "TMP_DIR")
+                                   "/view-tests"))
+          (it))
+  
+  (describe "show-index tests"
     
     (it "shows index of a directory"
       (should= (str "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">"

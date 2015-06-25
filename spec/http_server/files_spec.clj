@@ -3,16 +3,26 @@
             [clojure.java.shell :as sh]
             [http-server.files :refer :all]))
 
-(System/setProperty "PUB_DIR" "public")
+(defn get-file-from-tmp [file]
+  (str (System/getProperty "TMP_DIR")
+       "/" file))
 
 (describe "http.server-files"
-
+  (around [it]
+          (System/setProperty "PUB_DIR" "public")
+          (System/setProperty "TMP_DIR" "tmp")
+          (it))
+  
   (describe "Reads a file to a byte array"
-    (let [result (spit "tmp/test.txt" "foo")]
+    (let [result (spit
+                  (get-file-from-tmp "test.txt")
+                  "foo")]
 
       (it "reads a file to a byte array"
         (should= [\f \o \o]
-          (->> (file-to-byte-array (clojure.java.io/file "tmp/test.txt"))
+          (->> (file-to-byte-array
+                (clojure.java.io/file
+                 (get-file-from-tmp "test.txt")))
                (map char))))))
 
   (describe "Ranges from files"
@@ -62,15 +72,16 @@
         (base64-to-bytes "YmFzZTY0IGRlY29kZXI="))))
 
   (describe "Tests for patch functionality"
-    (let [PUB_DIR (System/getProperty "PUB_DIR")
-          result (spit (clojure.java.io/file "tmp/patches.edn") "")]
+    (let [result (spit (clojure.java.io/file
+                        (get-file-from-tmp "patches.edn"))
+                       "")]
 
       (it "demonstrates that patch file is empty at start of this test"
         (should (empty? (slurp (clojure.java.io/file "tmp/patches.edn")))))
       
       (it "demonstrates what contents of file1 is before patch"
         (should= "file1 contents"
-          (slurp (clojure.java.io/file (str PUB_DIR "/file1")))))
+          (slurp (clojure.java.io/file "/file1"))))
       
       (it "should not change a file for patch to work"
         (let [result
@@ -78,7 +89,7 @@
                          ["If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"]
                          "foobar")]
           (should= "file1 contents"
-            (slurp (clojure.java.io/file (str PUB_DIR "/file1"))))))
+            (slurp (clojure.java.io/file "/file1")))))
 
       (it "shows patched content"
         (let [result
