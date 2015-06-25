@@ -3,14 +3,23 @@
             [http-server.handler :refer :all])
   (:refer-clojure :exclude [send]))
 
+(defn setup-tmp-files [tmpdir]
+  (spit (str tmpdir "/form") ""))
+
 (defn get-file-from-tmp [file]
   (str (System/getProperty "TMP_DIR")
+       "/" file))
+
+(defn get-file-from-pub [file]
+  (str (System/getProperty "PUB_DIR")
        "/" file))
 
 (describe "http-server.handler"
   (around [it]
           (System/setProperty "PUB_DIR" "public")
           (System/setProperty "TMP_DIR" "tmp")
+          (setup-tmp-files (System/getProperty "TMP_DIR"))
+          (http-server.files/generate-form "Test123")
           (it))
   
   (describe "Query functions"
@@ -160,14 +169,10 @@
                                          :extension "gif"})))))
   
   (describe "Post handler"
-    (let [result (spit (clojure.java.io/file
-                        (get-file-from-tmp "form"))
-                       "" :append false)
-          result (http-server.files/generate-form "Test123")]
       
       (it "posts go to TMP_DIR/form"
         (should
           (re-find #"Test123" (slurp (clojure.java.io/file
-                                      (get-file-from-tmp "form")))))))))
+                                      (get-file-from-tmp "form"))))))))
 
 (run-specs)
