@@ -4,10 +4,15 @@
             [http-server.files :refer :all]))
 
 (defn setup-tmp-files [tmpdir]
-  (spit (str tmpdir "/test.txt") "foo"))
+  (spit (str tmpdir "/test.txt") "foo")
+  (spit (str tmpdir "/patches.edn") ""))
 
 (defn get-file-from-tmp [file]
   (str (System/getProperty "TMP_DIR")
+       "/" file))
+
+(defn get-file-from-pub [file]
+  (str (System/getProperty "PUB_DIR")
        "/" file))
 
 (describe "http.server-files"
@@ -15,16 +20,19 @@
           (System/setProperty "PUB_DIR" "public")
           (System/setProperty "TMP_DIR" "tmp")
           (setup-tmp-files (System/getProperty "TMP_DIR"))
+          (add-patch "/file1"
+                       ["If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"]
+                       "foobar")
           (it))
   
   (describe "Reads a file to a byte array"
-
-      (it "reads a file to a byte array"
-        (should= [\f \o \o]
-          (->> (file-to-byte-array
-                (clojure.java.io/file
-                 (get-file-from-tmp "test.txt")))
-               (map char)))))
+    
+    (it "reads a file to a byte array"
+      (should= [\f \o \o]
+        (->> (file-to-byte-array
+              (clojure.java.io/file
+               (get-file-from-tmp "test.txt")))
+             (map char)))))
 
   (describe "Ranges from files"
 
@@ -73,40 +81,28 @@
         (base64-to-bytes "YmFzZTY0IGRlY29kZXI="))))
 
   (describe "Tests for patch functionality"
-    (let [result (spit (clojure.java.io/file
-                        (get-file-from-tmp "patches.edn"))
-                       "")]
-
-      (it "demonstrates that patch file is empty at start of this test"
-        (should (empty? (slurp (clojure.java.io/file "tmp/patches.edn")))))
       
-      (it "demonstrates what contents of file1 is before patch"
-        (should= "file1 contents"
-          (slurp (clojure.java.io/file "/file1"))))
-      
-      (it "should not change a file for patch to work"
-        (let [result
-              (add-patch "/file1"
-                         ["If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"]
-                         "foobar")]
-          (should= "file1 contents"
-            (slurp (clojure.java.io/file "/file1")))))
-
-      (it "shows patched content"
-        (let [result
-              (add-patch "/file1"
-                         ["If-Match: dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec"]
-                         "foobar")]
-          (should= "foobar" (show-patched-file "/file1"))))))
+    (it "demonstrates what contents of file1 is before patch"
+      (should= "file1 contents"
+        (slurp (clojure.java.io/file (get-file-from-pub "file1")))))
+    
+    (it "should not change a file for patch to work"
+      (should= "file1 contents"
+        (slurp (clojure.java.io/file (get-file-from-pub "file1")))))
+    
+    (it "shows patched content"
+      (should= "foobar" (show-patched-file "/file1"))))
 
   (describe "Tests for form file functionality"
 
     (it "no previous entries"
       (let [result (generate-empty-form)]
-        (should-not-contain "foobar" (slurp "tmp/form"))))
+        (should-not-contain "foobar" (slurp
+                                      (get-file-from-tmp "form")))))
 
     (it "enters the content of body as the form entry"
       (let [result (generate-form "foobar")]
-        (should-contain "foobar" (slurp "tmp/form"))))))
+        (should-contain "foobar" (slurp
+                                  (get-file-from-tmp "form")))))))
 
 (run-specs)
