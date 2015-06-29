@@ -80,7 +80,7 @@
                            :uri "/logs",
                            :headers ["Authorization: Basic Zm9vYmFy"]}))))
 
-    (it "handles range requests"
+    (it "handles range requests for text files"
       (should= "HTTP/1.1 206 Partial Content\n"
         (:status (handler {:method :get,
                            :uri "/partial_content.txt",
@@ -114,6 +114,48 @@
              (map char)
              (apply str)))))
 
+  (describe "Logs with Range"
+    (it "tests logs with range"
+      (should= "GET"
+        (->> (:body
+              (handler {:method :get
+                        :uri "/logs"
+                        :headers ["Range: bytes=0-2"
+                                  (str "Authorization: "
+                                       "Basic YWRtaW46aHVudGVyMg==")]}))
+             (map char)
+             (apply str))))
+
+    (it "returns content with bad password without range"
+      (should-contain "<!DOCTYPE html PUBLIC"
+                      (:body
+                       (handler {:method :get
+                                 :uri "/logs"
+                                 :headers ["Authorization: Basic Zm9vYmFy"]}))))
+
+    (it "returns content with bad password WITH range"
+      (should= "<!DOC"
+        (:body (handler {:method :get
+                         :uri "/logs"
+                         :headers ["Authorization: Basic Zm9vYmFy"
+                                   "Range: bytes=0-4"]})))))
+
+  (describe "Image with Range"
+    (it "tests image with range"
+      (should= 10
+        (count (:body (handler {:method :get
+                                :uri "/image.jpeg"
+                                :headers ["Range: bytes=0-9"]}))))))
+
+  (describe "GIF Image with Range (demonstrates content)"
+    (it "tests GIF with range"
+      (should= "GIF"
+        (->> (:body (handler {:method :get
+                              :uri "/image.gif"
+                              :headers ["Range: bytes=0-2"]}))
+             (map char)
+             (apply str)))))
+  
   (describe "Logs functions"
 
     (it "returns status 200 if correct auth"
@@ -128,6 +170,12 @@
         (:status (handler {:method :get
                            :uri "/logs"
                            :headers ["Authorization: Basic Zm9vYmFy"]}))))
+
+    (it "returns content without range"
+      (should-contain "<!DOCTYPE html PUBLIC"
+                      (:body (handler {:method :get
+                                       :uri "/logs"
+                                       :headers ["Authorization: Basic Zm9vYmFy"]}))))
 
     (it "shows auth req if not correct auth"
       (should-contain "Authentication required"

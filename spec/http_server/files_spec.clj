@@ -15,6 +15,10 @@
   (str (System/getProperty "PUB_DIR")
        "/" file))
 
+(defn get-real-file-from-pub [file]
+  (clojure.java.io/file (str (System/getProperty "PUB_DIR")
+                             "/" file)))
+
 (describe "http.server-files"
   (around [it]
           (System/setProperty "PUB_DIR" "public")
@@ -38,16 +42,31 @@
 
     (it "can provide the range of a file as a byte array"
       (should= [\f \i \l \e]
-        (->> (file-range "/file1" ["Range: bytes=0-3"])
+        (->> (file-range (get-real-file-from-pub "file1")
+                         ["Range: bytes=0-3"])
              (map char)))
 
       (should= [\c \o \n \t \e \n \t \s]
-        (->> (file-range "/file1" ["Range: bytes=6-"])
+          (->> (file-range (get-real-file-from-pub "file1")
+                           ["Range: bytes=6-"])
              (map char)))
       
       (should= [\e \n \t \s]
-        (->> (file-range "/file1" ["Range: bytes=-4"])
-             (map char))))
+        (->> (file-range (get-real-file-from-pub "file1")
+                         ["Range: bytes=-4"])
+             (map char)))))
+
+  (describe "Ranges from strings"
+
+    (it "tests string content with range"
+      (should= "GET /"
+        (->>
+         (file-range "GET / HTTP/1.1"
+                     ["Range: bytes=0-4"])
+         (map char)
+         (apply str)))))
+  
+  (describe "Bytes from files"
 
     (it "can return the range of a file as a bytes"
       (should= [\a \b \c \d]
@@ -103,6 +122,12 @@
     (it "enters the content of body as the form entry"
       (let [result (generate-form "foobar")]
         (should-contain "foobar" (slurp
-                                  (get-file-from-tmp "form")))))))
+                                  (get-file-from-tmp "form"))))))
+
+  (describe "Show logs"
+
+    (it "shows logs"
+      (should-contain "HTTP/1.1"
+        (slurp (get-file-from-tmp "http_server.log"))))))
 
 (run-specs)
