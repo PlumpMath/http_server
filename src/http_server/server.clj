@@ -24,7 +24,8 @@
     (log/log msg1)))
 
 (defn server [port handler]
-  (let [running (atom true)]
+  (let [TMP_DIR (System/getProperty "TMP_DIR")
+        running (atom true)]
     (future
       (with-open [server-socket (ServerSocket. port 150)]
         (while @running
