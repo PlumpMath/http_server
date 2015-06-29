@@ -9,6 +9,10 @@
   (str (System/getProperty "TMP_DIR")
        "/" file))
 
+(defn get-real-file-from-tmp [file]
+  (clojure.java.io/file (str (System/getProperty "TMP_DIR")
+                             "/" file)))
+
 (describe "http-server.log"
   (around [it]
           (System/setProperty "TMP_DIR" "tmp")
@@ -20,7 +24,6 @@
 
     (it "log go to TMP_DIR/http_server.log"
       (should (re-find #"GET \/my-file HTTP\/1.1"
-                       (slurp (clojure.java.io/file
-                               (get-file-from-tmp "http_server.log"))))))))
+                       (slurp (get-real-file-from-tmp "http_server.log")))))))
 
 (run-specs)
